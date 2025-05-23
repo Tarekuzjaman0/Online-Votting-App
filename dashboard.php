@@ -45,17 +45,55 @@ $available_polls = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+<head>    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - National Voting Platform</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+        }
+        .navbar-brand {
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            transition: color 0.3s ease;
+        }
+        .nav-link:hover {
+            color: #fff !important;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+        }
+        .navbar-toggler {
+            border: none;
+            padding: 0.5rem;
+        }
+        .navbar-toggler:focus {
+            box-shadow: none;
+        }
+        @media (max-width: 991px) {
+            .navbar-collapse {
+                padding: 1rem 0;
+            }
+            .nav-link {
+                padding: 0.75rem 1rem;
+            }
+        }
+    </style>
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<body>    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="index.php">National Voting Platform</a>
+            <a class="navbar-brand d-flex align-items-center" href="index.php">
+                <i class="material-icons me-2">how_to_vote</i>
+                National Voting Platform
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -63,14 +101,29 @@ $available_polls = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <ul class="navbar-nav ms-auto">
                     <?php if($_SESSION['user_role'] === 'admin'): ?>
                         <li class="nav-item">
-                            <a class="nav-link" href="admin/dashboard.php">Admin Dashboard</a>
+                            <a class="nav-link" href="admin/dashboard.php">
+                                <i class="material-icons">admin_panel_settings</i>
+                                <span>Admin Dashboard</span>
+                            </a>
                         </li>
                     <?php endif; ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="profile.php">Profile</a>
+                        <a class="nav-link d-flex align-items-center" href="dashboard.php">
+                            <i class="material-icons">dashboard</i>
+                            <span>Dashboard</span>
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="logout.php">Logout</a>
+                        <a class="nav-link d-flex align-items-center" href="profile.php">
+                            <i class="material-icons">person</i>
+                            <span>Profile</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link d-flex align-items-center" href="logout.php">
+                            <i class="material-icons">logout</i>
+                            <span>Logout</span>
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -150,11 +203,17 @@ $available_polls = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <p class="text-muted">You haven't made any comments yet.</p>
                         <?php else: ?>
                             <?php foreach ($comments as $comment): ?>
-                                <div class="card mb-3">
+                                <div class="card mb-3" id="comment-<?php echo $comment['id']; ?>">
                                     <div class="card-body">
                                         <h6 class="card-title"><?php echo htmlspecialchars($comment['poll_title']); ?></h6>
-                                        <p class="card-text"><?php echo nl2br(htmlspecialchars($comment['comment_text'])); ?></p>
-                                        <small class="text-muted">Posted on: <?php echo date('M d, Y H:i', strtotime($comment['created_at'])); ?></small>
+                                        <p class="card-text comment-text"><?php echo nl2br(htmlspecialchars($comment['comment_text'])); ?></p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">Posted on: <?php echo date('M d, Y H:i', strtotime($comment['created_at'])); ?></small>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-outline-primary edit-comment" data-comment-id="<?php echo $comment['id']; ?>">Edit</button>
+                                                <button class="btn btn-sm btn-outline-danger delete-comment" data-comment-id="<?php echo $comment['id']; ?>">Delete</button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -173,5 +232,11 @@ $available_polls = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/main.js"></script>
+    <script>
+        // Add CSRF token to all fetch requests if you're using CSRF protection
+        window.addEventListener('DOMContentLoaded', (event) => {
+            console.log('DOM loaded - comment management initialized');
+        });
+    </script>
 </body>
-</html> 
+</html>
